@@ -1,0 +1,25 @@
+runtime: python39  # Specify the Python runtime version
+
+handlers:
+- url: /static
+  static_dir: static/  # Directory where your static files are located
+
+- url: /.*
+  script: auto  # Let App Engine handle routing to your Django app
+
+env_variables:
+  DJANGO_SETTINGS_MODULE: 'fyp.settings'  # Specify your Django settings module
+
+# Optional: You can specify resource settings (like CPU and memory) and other configurations here
+# For example:
+resources:
+    cpu: 1
+    memory_gb: 2
+    disk_size_gb: 10
+
+  # Automatic scaling settings
+automatic_scaling:
+    min_instances: 1
+    max_instances: 10
+    target_cpu_utilization: 0.65
+    target_throughput_utilization: 0.75
