@@ -1,0 +1,139 @@
+/* static/accounts/style.css */
+
+@import url('https://cdn.jsdelivr.net/npm/@xz/fonts@1/serve/inter.css');
+
+  body{
+    margin: 0;
+    padding: 0;
+    
+  }
+  .login-section,
+  .register-section {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .login-form,
+  .register-form {
+    width: 100%;
+    max-width: 400px;
+    background-color: #212529;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth animation */
+
+    
+  }
+  
+  h2 {
+    color: #fff;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group label {
+    display: block;
+    color: #fff;
+    margin-bottom: 0.5rem;
+  }
+  
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    background-color: #343a40;
+    color: #fff;
+    border-radius: 20px;
+  }
+  
+  .btn-login,
+  .btn-register {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    color: #fff;
+    background-color: #007bff;
+    border: 1px solid #007bff;
+    border-radius: 0.25rem;
+    cursor: pointer;
+  }
+  
+  .btn-login:hover,
+  .btn-register:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+  }
+  
+  .not-registered {
+    display: block;
+    text-align: center;
+    color: #fff;
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    text-decoration: none;
+    opacity: 0.8;
+  }
+  
+  .not-registered:hover {
+    opacity: 1;
+  }
+  
+
+.form-error{
+    color: rgb(255, 238, 0);
+    font-size: small;
+}
+
+#tag{
+  color: white;
+  margin-bottom: 10px;
+}
+
+
+/* Hover effect */
+img:hover {
+  transform: translate(0%,-5%);
+  box-shadow: 0 0 10px rgba(245, 245, 245, 0.3); /* Slight drop shadow */
+}
+
+.label{
+    font-family:Inter;
+    font-weight: 1000;
+    font-size: 30px;
+}
+.label h1{
+  font-size: 42px;
+  color: blue;
+  margin: 0;
+  padding: 0;
+  display: inline-block; /* Ensures hover effect is only applied to text */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth animation */
+  justify-self: unset;
+
+
+}
+.label:hover h1 {
+  text-shadow: 2px 2px 4px rgba(76, 76, 76, 0.3); /* Drop shadow on hover */
+  transform: translate(0%, 2%) ; /* Tilts the form */
+
+}
+
+.register-form:hover{
+  transform: translate(0%, 2%) ; /* Tilts the form */
+  box-shadow: 0 0 100px rgba(0, 0, 0, 0.3); /* Adds a slight drop shadow */
+}
+.login-form:hover{
+  transform: translate(0%, 2%) ; /* Tilts the form */
+  box-shadow: 0 0 100px rgba(0, 0, 0, 0.3); /* Adds a slight drop shadow */
+
+}
