@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="dashboard-container">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'app/style.css' %}">
+        {% if user.is_teacher %}
+            <h2>Create a Room</h2>
+            <hr>
+            <form method="post" action="">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="dashboard-btn">Create Room</button>
+            </form>
+            <!-- Font Awesome instruction -->
+<div class="font-awesome-instruction">
+    <i class="fas fa-info-circle"></i> After selecting the name, your private key will be automatically generated. Which you can share among your students for joining.
+</div>
+        {% else %}
+            <p>You are not authorized to create a room.</p>
+        {% endif %}
+        <a href="{% url 'app:home' %}" style="margin-top: 21px;" class="btn btn-primary">Go Home</a>
+    </div>
+    
+
+    <script>
+      $(document).ready(function() {
+          $('.dashboard-container').css('opacity', '0').animate({ opacity: '1' }, 300);
+      });
+    </script>
+
+    <style>
+        .dashboard-btn{
+            margin-left: 45%;
+            margin-bottom: 1%;
+        }
+        form {
+            padding: 20px; /* Add some padding */
+            border: 1px solid #ccc; /* Add a border */
+            border-radius: 8px; /* Add some border radius for rounded corners */
+            background-color: #f9f9f9; /* Add a light background color */
+        }
+        
+        /* Style for form inputs */
+        form input[type="text"],
+        form textarea {
+            width: 100%; /* Take up full width */
+            padding: 10px; /* Add padding */
+            margin-bottom: 10px; /* Add some space between inputs */
+            border: 1px solid #ccc; /* Add a border */
+            border-radius: 4px; /* Add some border radius for rounded corners */
+            box-sizing: border-box; /* Include padding and border in element's total width and height */
+        }
+        
+        /* Style for the submit button */
+        form input[type="submit"] {
+            width: 100%; /* Take up full width */
+            padding: 10px; /* Add padding */
+            background-color: #007bff; /* Set background color */
+            color: #fff; /* Set text color */
+            border: none; /* Remove border */
+            border-radius: 4px; /* Add some border radius for rounded corners */
+            cursor: pointer; /* Add pointer cursor on hover */
+        }
+        
+        /* Style for form field labels */
+        form label {
+            font-weight: bold; /* Make labels bold */
+        }
+        .font-awesome-instruction {
+    margin-top: 20px; /* Add some space between the form and the instruction */
+    font-size: 14px; /* Set the font size */
+    color: #666; /* Set the text color */
+}
+
+.font-awesome-instruction i {
+    margin-right: 5px; /* Add some space between the icon and the text */
+}
+
+
+    </style>
+      
+{% endblock %}

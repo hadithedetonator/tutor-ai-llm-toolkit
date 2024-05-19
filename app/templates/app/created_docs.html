@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Your Created Documents</h2>
+    <div class="table-responsive mt-4">
+        {% if documents %}
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Created at:</th>
+                    <th>Document Type:</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for document in documents %}
+                <tr>
+                    <td>{{ document.title }}</td>
+                    <td>{{ document.created_at }}</td>
+                    <td>{{ document.d_type }}</td>
+                    <td>
+                        <a target="_blank" style="text-decoration: none; border-radius: 2px; border: 1px solid blue; background-color: blue; color: white; padding: 5px 10px; transition: background-color 0.3s, color 0.3s;" href="/{{ document.document }}">View</a>
+                        <a href="{% url 'app:delete_document' doc_id=document.id %}" class="btn btn-danger delete-btn">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Nothing generated yet... click to generate</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    /* CSS for fade-in and fade-out animations */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+.fade-out {
+    animation: fadeOut 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+</style>
+
+<script>
+    // JavaScript for animations
+$('.delete-btn').click(function(e) {
+
+    var deleteBtn = $(this);
+    var row = deleteBtn.closest('tr');
+
+    // Add fade-out animation to the row
+    row.addClass('fade-out');
+
+    // Delay the removal of the row to match the duration of the animation
+    setTimeout(function() {
+        // Remove the row from the table
+        row.remove();
+    }, 500); // Duration of fade-out animation (500ms)
+});
+
+</script>
+{% endblock %}

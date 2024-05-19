@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'app/style.css' %}">
+<div class="dashboard-container">
+  <h2 class="section-title">Upload a Book</h2>
+  <form method="post" enctype="multipart/form-data" class="upload-form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Upload</button>
+    
+  <div class="upload-instruction">
+    <i class="fas fa-info-circle"></i>
+    <p>Upload book/slides only in .pdf extension.</p>
+  </div>  
+  </form>
+  <div class="buttons">
+    <a href="{% url 'app:book_list' %}" class="btn btn-secondary">View Uploaded Books</a>
+    <a href="{% url 'app:home' %}" class="btn btn-secondary">Go Home</a>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    $('.dashboard-container').css('opacity', '0').animate({ opacity: '1' }, 300);
+  });
+</script>
+
+<style>
+  .buttons {
+    padding: 15px;
+  }
+
+  form {
+    padding: 20px;
+    /* Add some padding */
+    border: 1px solid #ccc;
+    /* Add a border */
+    border-radius: 8px;
+    /* Add some border radius for rounded corners */
+    background-color: #f9f9f9;
+    /* Add a light background color */
+  }
+
+  /* Style for form inputs */
+  form input[type="text"],
+  form textarea {
+    width: 100%;
+    /* Take up full width */
+    padding: 10px;
+    /* Add padding */
+    margin-bottom: 10px;
+    /* Add some space between inputs */
+    border: 1px solid #ccc;
+    /* Add a border */
+    border-radius: 4px;
+    /* Add some border radius for rounded corners */
+    box-sizing: border-box;
+    /* Include padding and border in element's total width and height */
+  }
+
+  /* Style for the submit button */
+  form input[type="submit"] {
+    width: 100%;
+    /* Take up full width */
+    padding: 10px;
+    /* Add padding */
+    background-color: #007bff;
+    /* Set background color */
+    color: #fff;
+    /* Set text color */
+    border: none;
+    /* Remove border */
+    border-radius: 4px;
+    /* Add some border radius for rounded corners */
+    cursor: pointer;
+    /* Add pointer cursor on hover */
+  }
+
+  /* Style for form field labels */
+  form label {
+    font-weight: bold;
+    /* Make labels bold */
+  }
+
+  .upload-instruction {
+    background-color: #ffffcc;
+    /* Yellow background color */
+    border-radius: 10px;
+    /* Rounded corners */
+    padding: 10px;
+    /* Padding around the content */
+    display: flex;
+    /* Display flex to align items */
+    align-items: center;
+    /* Center items vertically */
+    max-width: 100%;
+    /* Set maximum width */
+  }
+
+  .upload-instruction i {
+    color: #d6c16c;
+    /* Yellow icon color */
+    font-size: 24px;
+    /* Icon size */
+    margin-right: 10px;
+    /* Margin between icon and text */
+  }
+
+  .upload-instruction p {
+    margin: 0;
+    /* Remove default margin */
+    font-size: 18px;
+    /* Font size */
+    color: #333;
+    /* Text color */
+  }
+</style>
+{% endblock %}

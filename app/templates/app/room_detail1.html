@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'app/style.css' %}">
+
+{% load static %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<div class="row">
+    <div class="card1">
+        <h4>Room Detail</h4>
+    </div>
+    <div class="room-detail-container">
+        <div style="display: grid; justify-content: center; font-size: larger;">
+            <h2>{{ room.name }}</h2>
+            <hr>
+            <p>Room Owner: <img style="border-radius: 50%; margin-right: 2px;" src="http://34.125.209.178:8090/{{ room.creator.profile_picture }}" alt="Profile Picture">{{room.creator.username }}</p>
+            <p>Total Joined Students: {{ room.participants.count }}</p>
+            <p>PassKey: <i style="color: tomato;">{{ room.pass_key }}</i></p>
+        </div>
+
+        <!-- Display links for teacher -->
+        <div class="teacher-links">
+            <button id="load-quizzes" class="btn btn-primary"><i class="fa-solid fa-person-chalkboard"></i>
+                Quizzes</button>
+            <button id="load-assignments" class="btn btn-primary"><i class="fa-solid fa-book-open"></i>
+                Assignments</button>
+            <button id="load-exams" class="btn btn-primary"><i class="fa-solid fa-graduation-cap"></i> Exams</button>
+            {% if user.is_teacher %}
+            <a href="{% url 'app:join_requests' room_id=room.id %}">
+                <button class="btn btn-info">
+                    See Join Requests
+                    <!-- Add a badge with the count of join requests -->
+                    <span class="badge badge-pill badge-danger" id="join-requests-badge">{{room.join_requests.count}}</span>
+                </button>
+            </a>
+            <a href="#" id="see-participants-btn" data-room-id="{{ room.id }}">
+                <button class="btn btn-success">See Participants</button>
+            </a>
+            <div id="participants-container"></div>
+            {% endif %}
+        </div>
+
+        <!-- Create a div to hold the loaded content -->
+        <div id="content-container"></div>
+
+    </div>
+
+    <script>
+
+        $(document).ready(function () {
+            // Attach click event handlers to load quizzes
+            $("#load-quizzes").click(function () {
+                loadContent("{% url 'app:room_quizzes' room_id=room.id %}");
+            });
+
+            // Attach click event handlers to load assignments
+            $("#load-assignments").click(function () {
+                loadContent("{% url 'app:room_assignments' room_id=room.id %}");
+            });
+
+            // Attach click event handlers to load exams
+            $("#load-exams").click(function () {
+                loadContent("{% url 'app:room_exams' room_id=room.id %}");
+            });
+
+            // Attach click event handlers to load Participants
+            $("#see-participants-btn").click(function () {
+                loadContent("{% url 'app:load_participants' room_id=room.id %}");
+            });
+
+
+            // Function to load content using AJAX
+            function loadContent(url) {
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    success: function (response) {
+                        // Insert the fetched content into the content container
+                        $("#content-container").html(response);
+                    },
+                    error: function (xhr, errmsg, err) {
+                        console.log(errmsg);
+                    }
+                });
+            }
+        });
+
+
+
+    </script>
+
+    <style>
+        form {
+            padding: 20px;
+            /* Add some padding */
+            border: 1px solid #ccc;
+            /* Add a border */
+            border-radius: 8px;
+            /* Add some border radius for rounded corners */
+            background-color: #f9f9f9;
+            /* Add a light background color */
+        }
+
+        /* Style for form inputs */
+        form input[type="text"],
+        form input[type="number"],
+        form textarea , 
+    form select {
+            width: 100%;
+            /* Take up full width */
+            padding: 10px;
+            /* Add padding */
+            margin-bottom: 10px;
+            /* Add some space between inputs */
+            border: 1px solid #ccc;
+            /* Add a border */
+            border-radius: 4px;
+            /* Add some border radius for rounded corners */
+            box-sizing: border-box;
+            /* Include padding and border in element's total width and height */
+        }
+
+        /* Style for the submit button */
+        form input[type="submit"] {
+            width: 100%;
+            /* Take up full width */
+            padding: 10px;
+            /* Add padding */
+            background-color: #007bff;
+            /* Set background color */
+            color: #fff;
+            /* Set text color */
+            border: none;
+            /* Remove border */
+            border-radius: 4px;
+            /* Add some border radius for rounded corners */
+            cursor: pointer;
+            /* Add pointer cursor on hover */
+        }
+
+        /* Style for form field labels */
+        form label {
+            font-weight: bold;
+            /* Make labels bold */
+        }
+
+        .upload-instruction {
+            background-color: #ffffcc;
+            /* Yellow background color */
+            border-radius: 10px;
+            /* Rounded corners */
+            padding: 10px;
+            /* Padding around the content */
+            display: flex;
+            /* Display flex to align items */
+            align-items: center;
+            /* Center items vertically */
+            max-width: 100%;
+            /* Set maximum width */
+        }
+
+        .upload-instruction i {
+            color: #d6c16c;
+            /* Yellow icon color */
+            font-size: 24px;
+            /* Icon size */
+            margin-right: 10px;
+            /* Margin between icon and text */
+        }
+
+        .upload-instruction p {
+            margin: 0;
+            /* Remove default margin */
+            font-size: 18px;
+            /* Font size */
+            color: #333;
+            /* Text color */
+        }
+        h1 {
+    font-size: 24px; /* Adjust the font size */
+    color: #ff69b4; /* Pink color */
+    text-align: center; /* Center the text */
+    letter-spacing: 2px; /* Add some letter spacing */
+    margin-bottom: 20px; /* Add some space below the heading */
+    margin-top: 20px;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2); /* Add a subtle text shadow */
+}
+    </style>
+    {% endblock %}

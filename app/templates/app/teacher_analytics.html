@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'app/style.css' %}">
+
+
+    <div class="row">
+        <div class="card1">
+            <h1>Teacher Analytics</h1>
+                </div>
+    {% for room_stat in room_stats %}
+        <h2>{{ room_stat.room.name }}</h2>
+
+        <canvas id="room_{{ room_stat.room.id }}_chart" width="400" height="200"></canvas>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+
+        <script>
+            
+            var room_{{ room_stat.room.id }}_chart = document.getElementById('room_{{ room_stat.room.id }}_chart').getContext('2d');
+            var room_{{ room_stat.room.id }}_chart_data = {
+                labels: ['Quiz', 'Assignment', 'Exam'],
+                datasets: [{
+                    label: 'Average Marks',
+                    data: [{{ room_stat.quiz_avg_marks }}, {{ room_stat.assignment_avg_marks }}, {{ room_stat.exam_avg_marks }}],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            };
+            var room_{{ room_stat.room.id }}_chart_options = {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            };
+            var room_{{ room_stat.room.id }}_chart_instance = new Chart(room_{{ room_stat.room.id }}_chart, {
+                type: 'bar',
+                data: room_{{ room_stat.room.id }}_chart_data,
+                options: room_{{ room_stat.room.id }}_chart_options
+            });
+        </script>
+
+        <p>Top Quiz Scorer: {{ room_stat.top_quiz_scorer_user.last_name }} </p>
+        <p>Top Assignment Scorer: {{ room_stat.top_assignment_scorer_user.first_name }} </p>
+        <p>Top Exam Scorer: {{ room_stat.top_exam_scorer_user.first_name }}</p>
+    {% endfor %}
+{% endblock %}

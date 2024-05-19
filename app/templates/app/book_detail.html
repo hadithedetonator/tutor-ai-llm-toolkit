@@ -1,0 +1,552 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"
+    integrity="sha512-UqYzmySEh6DXh20njgxWoxDvuA4qqM8FmKWTkRvkYsg7LjzjscbMHj06zbt3oC6kP2Oa7Qow6v/lGLeMywbvQg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script><br>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf_viewer.min.css"
+    integrity="sha512-5cOE2Zw/F4SlIUHR/xLTyFLSAR0ezXsra+8azx47gJyQCilATjazEE2hLQmMY7xeAv/RxxZhs8w8zEL7dTsvnA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf_viewer.js"
+    integrity="sha512-WBiA7Xu6uie6Tk2fqnQnXHWbDFrkzDMlUfALYEJI9/eQtQ4kHcO1AbZA9wGqQ48Nkx7EUs9dXSAvW50ZYIQq+A=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+{% if user.is_teacher %}
+
+<div id="loading-overlay">
+    <div id="loading-spinner"></div>
+</div>
+<div class="row">
+    <div class="card1">
+        <h4>Query Form</h4>
+    </div>
+<div class="container">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'app/style.css' %}">
+    <div class="pdf-container">
+        <div class="top-bar">
+            <button class="btn" id="prev-page">
+                <i class="fas fa-arrow-circle-left"></i> Prev Page
+            </button>
+
+            <span class="page-info">
+                Page <span id="page-num"></span> of <span id="page-count"></span>
+            </span>
+            <button class="btn" id="next-page">
+                Next Page <i class="fas fa-arrow-circle-right"></i>
+            </button>
+            <input type="text" id="search-input" placeholder="Search term">
+            <button id="search-btn">Search</button>
+        </div>
+        <canvas id="pdf-render"></canvas>
+        <h4>Select pages from which you want to generate:</h4> <br>
+        <div id="page-checkboxes"></div> <!-- Container for checkboxes -->
+    </div>
+    <div class="query-form">
+        <form id="query-form">
+            {% csrf_token %}
+            <label for="query">Ask Tutor-AI:</label>
+            <input type="text" name="query" id="query" required>
+            <button type="submit">Submit </button>
+        </form>
+
+
+        <img id="loading-message" src="https://i.pinimg.com/originals/3e/f0/e6/3ef0e69f3c889c1307330c36a501eb12.gif" alt="">
+
+
+        <div id="response-container">
+        </div><br>
+        
+        <!-- Dropdown for d_type -->
+        <label for="document-type">Select document type:</label>
+        <select id="document-type">
+            <option value="quiz">Quiz</option>
+            <option value="assignment">Assignment</option>
+            <option value="exam">Exam</option>
+        </select>
+        <button id="save-pdf-btn">Save as PDF</button> <!-- Button to save PDF -->
+
+    </div>
+
+</div>
+
+
+    {% else %}
+    <h2>Not Allowed!</h2>
+    {% endif %}
+    <script>
+        // Function to get CSRF token from cookies
+        function getCSRFToken() {
+            var csrfToken = null;
+            var cookieList = document.cookie.split(';');
+            for (var i = 0; i < cookieList.length; i++) {
+                var cookieParts = cookieList[i].trim().split('=');
+                if (cookieParts[0] === 'csrftoken') {
+                    csrfToken = decodeURIComponent(cookieParts[1]);
+                    break;
+                }
+            }
+            return csrfToken;
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            const url = '/{{book.upload}}';
+
+            let pdfDoc = null,
+                pageNum = 1,
+                pageIsRendering = false,
+                pageNumIsPending = null;
+
+            const scale = 2.0,
+                canvas = document.querySelector('#pdf-render'),
+                ctx = canvas.getContext('2d');
+
+            // Render the page
+            const renderPage = num => {
+                pageIsRendering = true;
+
+                // Get page
+                pdfDoc.getPage(num).then(page => {
+                    // Set scale
+                    const viewport = page.getViewport({ scale });
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    const renderCtx = {
+                        canvasContext: ctx,
+                        viewport
+                    };
+
+                    page.render(renderCtx).promise.then(() => {
+                        pageIsRendering = false;
+
+                        if (pageNumIsPending !== null) {
+                            renderPage(pageNumIsPending);
+                            pageNumIsPending = null;
+                        }
+                    });
+
+                    // Output current page
+                    document.querySelector('#page-num').textContent = num;
+
+                    // Update selected page number in the checkboxes container
+                    const selectedPageLabel = document.querySelector('.selected-page-label');
+                    if (selectedPageLabel) {
+                        selectedPageLabel.textContent = 'Page ' + num;
+                    }
+                });
+            };
+
+            // Check for pages rendering
+            const queueRenderPage = num => {
+                if (pageIsRendering) {
+                    pageNumIsPending = num;
+                } else {
+                    renderPage(num);
+                }
+            };
+
+            // Show Prev Page
+            const showPrevPage = () => {
+                if (pageNum <= 1) {
+                    return;
+                }
+                pageNum--;
+                queueRenderPage(pageNum);
+            };
+
+            // Show Next Page
+            const showNextPage = () => {
+                if (pageNum >= pdfDoc.numPages) {
+                    return;
+                }
+                pageNum++;
+                queueRenderPage(pageNum);
+            };
+
+            // Get Document
+            pdfjsLib.getDocument(url)
+                .promise.then(pdfDoc_ => {
+                    pdfDoc = pdfDoc_;
+                    document.querySelector('#page-count').textContent = pdfDoc.numPages;
+                    renderPage(pageNum);
+
+                    // Create checkboxes for each page
+                    const pageCheckboxes = document.querySelector('#page-checkboxes');
+                    for (let i = 1; i <= pdfDoc.numPages; i++) {
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.name = 'page';
+                        checkbox.value = i;
+                        checkbox.id = 'page-' + i;
+                        pageCheckboxes.appendChild(checkbox);
+
+                        const label = document.createElement('label');
+                        label.htmlFor = 'page-' + i;
+                        label.appendChild(document.createTextNode('Page ' + i));
+                        pageCheckboxes.appendChild(label);
+                    }
+
+                })
+                .catch(err => {
+                    // Display error
+                    const div = document.createElement('div');
+                    div.className = 'error';
+                    div.appendChild(document.createTextNode(err.message));
+                    document.querySelector('body').insertBefore(div, canvas);
+                    // Remove top bar
+                    document.querySelector('.top-bar').style.display = 'none';
+                });
+
+            // Button Events
+            document.querySelector('#prev-page').addEventListener('click', showPrevPage);
+            document.querySelector('#next-page').addEventListener('click', showNextPage);
+            var currentPageIndex = 0; // Variable to keep track of the current page index
+            var foundMatches = []; // Array to store found matches
+
+            $('#search-btn').click(function () {
+
+                // Get the search term from the input field
+                var searchTerm = $('#search-input').val().trim().toLowerCase();
+
+                // Get the text content from the PDF
+                getTextContentFromPDF(pdfDoc).then(function (pdfTextContent) {
+                    var matches = [];
+                    // Search for the term in the text content of each page
+                    pdfTextContent.forEach(function (pageText, pageNum) {
+                        if (pageText.includes(searchTerm)) {
+                            matches.push({ page: pageNum + 1 });
+                        }
+                    });
+
+                    if (matches.length > 0) {
+                        matches.forEach(function (match) {
+                            console.log("Found on Page Number: " + match.page);
+                            foundMatches.push(match.page); // Save the page number in the array
+                        });
+                        alert('Search term found in the document.');
+
+                        // Render matches one by one
+                        renderNextMatch();
+                    } else {
+                        alert('Search term not found in the document.');
+                    }
+                });
+            });
+
+            function renderNextMatch() {
+                if (currentPageIndex < foundMatches.length) {
+                    var nextPage = foundMatches[currentPageIndex];
+                    queueRenderPage(nextPage); // Render the next page
+                    currentPageIndex++; // Increment the current page index
+                } else {
+                    console.log("All matches rendered.");
+                    // Reset current page index if you want to start over from the beginning
+                    // currentPageIndex = 0;
+                }
+            }
+
+            // Function to get text content from the PDF
+            function getTextContentFromPDF(pdf) {
+                return new Promise(function (resolve, reject) {
+                    var numPages = pdf.numPages;
+                    var promises = [];
+                    for (let i = 1; i <= numPages; i++) {
+                        promises.push(getPageText(pdf, i));
+                    }
+                    Promise.all(promises).then(function (pageTexts) {
+                        resolve(pageTexts);
+                    }).catch(function (error) {
+                        reject(error);
+                    });
+                });
+            }
+
+            // Function to get text content of a single page
+            function getPageText(pdf, pageNum) {
+                return pdf.getPage(pageNum).then(function (page) {
+                    return page.getTextContent().then(function (textContent) {
+                        return textContent.items.map(function (s) {
+                            return s.str.toLowerCase();
+                        }).join('');
+                    });
+                });
+            }
+
+        });
+
+
+        $(document).ready(function () {
+
+            // Hide loading message
+            $('#loading-message').hide();
+             // Show loading overlay when the document starts loading
+             $('#loading-overlay').show();
+
+    // Hide loading overlay when the PDF canvas has content
+    function checkPDFLoaded() {
+        var canvas = document.getElementById('pdf-render');
+        if (canvas && canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data.length > 0) {
+            $('#loading-overlay').hide();
+        } else {
+            setTimeout(checkPDFLoaded, 100); // Check every 100 milliseconds
+        }
+    }
+
+    checkPDFLoaded(); // Start checking for PDF content
+
+
+            // Attach click event listener to the "Save PDF" button
+            $('#save-pdf-btn').click(function () {
+                // Get the response content
+                var response = $('#response-container').text();
+
+
+                // Prompt the user to enter the document title
+                var title = prompt("Enter document title:");
+
+                var d_type = $('#document-type').val();
+
+                if (title !== null && title.trim() !== "" && d_type !== null && d_type.trim() !== "") { // If the user entered a title
+                    // Send an AJAX request to the server to save the PDF with the entered title
+                    $.ajax({
+                        url: '/save-pdf/',
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCSRFToken() // Include CSRF token in request headers
+                        },
+                        data: {
+                            title: title,
+                            d_type: d_type,
+                            response_content: response
+                        },
+                        success: function (response) {
+                            // Display success message
+                            alert('PDF saved successfully.');
+                        },
+                        error: function (xhr, errmsg, err) {
+
+                            // Display error message
+                            alert('Failed to save PDF.');
+                            console.log(errmsg);
+                        }
+                    });
+                } else {
+
+                    // Alert the user if no title was entered
+                    alert("Please enter a title for the document.");
+                }
+            });
+        });
+
+
+        $('#query-form').submit(function (event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+
+            // Show loading message
+            $('#loading-message').show();
+
+            // Get the query value
+            var query = $('#query').val();
+
+            // Initialize the text variable
+            var text = '';
+
+            // Initialize an array to store selected page numbers
+            var selectedPages = [];
+
+            // Iterate over each checkbox to get selected pages
+            $('input[name="page"]:checked').each(function () {
+                var pageNumber = parseInt($(this).val()); // Parse page number to integer
+                selectedPages.push(pageNumber); // Push selected page numbers to the array
+            });
+
+            // Array to store promises for fetching text content of selected pages
+            var promises = [];
+
+            // Define getTextContent function to fetch text content of selected pages
+            const getTextContent = (pdfUrl, selectedPages) => {
+                return pdfjsLib.getDocument(pdfUrl).promise.then(function (pdf) {
+                    var countPromises = []; // collecting promises for selected pages
+                    selectedPages.forEach(function (pageNumber) {
+                        var page = pdf.getPage(pageNumber);
+                        countPromises.push(page.then(function (page) { // add page promise
+                            var textContent = page.getTextContent();
+                            return textContent.then(function (text) { // return content promise
+                                return text.items.map(function (s) {
+                                    return s.str;
+                                }).join(''); // value page text 
+                            });
+                        }));
+                    });
+                    // Wait for all selected pages and join text
+                    return Promise.all(countPromises).then(function (texts) {
+                        return texts.join('');
+                    });
+                });
+            };
+
+            // Push promise for fetching text content of the selected pages to the promises array
+            promises.push(getTextContent('/{{ book.upload }}', selectedPages).then(function (pageText) {
+                text += pageText + '\n'; // Add page text to the text variable
+            }).catch(function (error) {
+                console.error(error); // Handle errors if any
+            }));
+
+            // Wait for all promises to resolve
+            Promise.all(promises).then(function () {
+                // Create a FormData object and append query and text to it
+                var formData = new FormData();
+                formData.append('query', query);
+                formData.append('text', text);
+
+                // Send an AJAX request to the Django view
+                $.ajax({
+                    url: '/query-form/', // Modify the URL as per your Django app
+                    method: 'POST',
+                    processData: false,  // Prevent jQuery from processing the data
+                    contentType: false,  // Prevent jQuery from setting the content type
+                    data: formData,
+                    headers: {
+                        'X-CSRFToken': getCSRFToken() // Include CSRF token in request headers
+                    },
+                    success: function (response) {
+                        // Hide loading message
+                        $('#loading-message').hide();
+
+                        // Update the response container with the generated response
+                        $('#response-container').text(response);
+                    },
+                    error: function (xhr, errmsg, err) {
+                        // Hide loading message
+                        $('#loading-message').hide();
+
+                        // Handle errors if any
+                        console.log(errmsg);
+                    }
+                });
+            });
+
+        });
+
+
+
+
+        $('#query-form').submit(function (event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+
+            // Show loading message
+            $('#loading-message').show();
+
+            // Get the query value
+            var query = $('#query').val();
+
+            // Initialize the text variable
+            var text = '';
+
+            // Initialize an array to store selected page numbers
+            var selectedPages = [];
+
+            // Iterate over each checkbox to get selected pages
+            $('input[name="page"]:checked').each(function () {
+                var pageNumber = parseInt($(this).val()); // Parse page number to integer
+                selectedPages.push(pageNumber); // Push selected page numbers to the array
+            });
+
+            // Array to store promises for fetching text content of selected pages
+            var promises = [];
+
+            // Define getTextContent function to fetch text content of selected pages
+            const getTextContent = (pdfUrl, selectedPages) => {
+                return pdfjsLib.getDocument(pdfUrl).promise.then(function (pdf) {
+                    var countPromises = []; // collecting promises for selected pages
+                    selectedPages.forEach(function (pageNumber) {
+                        var page = pdf.getPage(pageNumber);
+                        countPromises.push(page.then(function (page) { // add page promise
+                            var textContent = page.getTextContent();
+                            return textContent.then(function (text) { // return content promise
+                                return text.items.map(function (s) {
+                                    return s.str;
+                                }).join(''); // value page text 
+                            });
+                        }));
+                    });
+                    // Wait for all selected pages and join text
+                    return Promise.all(countPromises).then(function (texts) {
+                        return texts.join('');
+                    });
+                });
+            };
+
+            // Push promise for fetching text content of the selected pages to the promises array
+            promises.push(getTextContent('/{{ book.upload }}', selectedPages).then(function (pageText) {
+                text += pageText + '\n'; // Add page text to the text variable
+            }).catch(function (error) {
+                console.error(error); // Handle errors if any
+            }));
+
+            // Wait for all promises to resolve
+            Promise.all(promises).then(function () {
+                // Create a FormData object and append query and text to it
+                var formData = new FormData();
+                formData.append('query', query);
+                formData.append('text', text);
+
+                // Send an AJAX request to the Django view
+                $.ajax({
+                    url: '/query-form/', // Modify the URL as per your Django app
+                    method: 'POST',
+                    processData: false,  // Prevent jQuery from processing the data
+                    contentType: false,  // Prevent jQuery from setting the content type
+                    data: formData,
+                    headers: {
+                        'X-CSRFToken': getCSRFToken() // Include CSRF token in request headers
+                    },
+                    success: function (response) {
+                        // Hide loading message
+                        $('#loading-message').hide();
+
+                        // Update the response container with the generated response
+                        $('#response-container').text(response);
+                    },
+                    error: function (xhr, errmsg, err) {
+                        // Hide loading message
+                        $('#loading-message').hide();
+
+                        // Handle errors if any
+                        console.log(errmsg);
+                    }
+                });
+            });
+
+        });
+
+    </script>
+<style>
+    #save-pdf-btn {
+        margin-top: 2vh;
+  background-color: orange;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.5s ease; /* Smooth transition */
+}
+
+/* Hover effect to change background color to white */
+#save-pdf-btn:hover {
+  background-color: white;
+  color: orange; /* Change text color on hover */
+}
+
+#loading-message{
+    margin-top:10px;
+    margin-left:16vh;
+    height:70px;
+    width:70px;
+}
+</style>
+</head>
+<body>
+</style>
+    {% endblock %}

@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'app/style.css' %}">
+    <div class="dashboard-container">
+        <h3>Your Created Rooms</h3>
+        {% if created_rooms %}
+            <div class="books-container">
+                {% for room in created_rooms %}
+                    <div class="card">
+                        <h3 class="room-title">{{ room.name }}</h3>
+                        <div class="button-group">
+                            <a href="{% url 'app:room_detail' room_id=room.id %}" class="view-button"><i class="fas fa-portal-enter"></i>Enter Room</a>
+                            <form method="POST" action="{% url 'app:delete_room' room.id %}">
+                                {% csrf_token %}
+                                <button class="delete-button" type="submit"><i class="fa-solid fa-trash-can" style="margin-right: 2px;"></i>Delete Room</button>
+                            </form>                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-books">You haven't created any rooms yet.</p>
+        {% endif %}
+
+        <a href="{% url 'app:create_room' %}" class="btn btn-primary">Create Rooms</a>
+        <a href="{% url 'app:home' %}" class="btn btn-primary">Go Back</a>
+    </div>
+
+
+    <script>
+      $(document).ready(function() {
+        $('.dashboard-container').css('opacity', '0').animate({ opacity: '1' }, 300);
+      });
+    </script>
+
+    <style>
+        .dashboard-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+  }
+  .card {
+    font-size: 34px;
+    padding: 22px;
+    min-width: 200px;
+    /* Minimum width of each card */
+    background-size: cover;
+    /* Stretch the background image to cover the entire card */
+    background-position: center;
+    /* Center the background image */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: .5em;
+
+    transform-style: preserve-3d; /* Preserve 3D transformations */
+
+    height: 200px;
+    /* Fixed height for cards */
+    background-image: url("{% static 'app/bg.jpg' %}");
+    background-size: cover;
+    /* Stretch the background image to cover the entire card */
+    background-position: center;
+    /* Center the background image */
+    display: flex;
+    transform:
+    perspective(800px)
+    rotateY(-8deg);
+  transition: transform 1s ease 0s;
+  border-radius: 4px;
+  box-shadow:
+    rgba(0, 0, 0, 0.024) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.05) 0px 1px 0px 0px,
+    rgba(0, 0, 0, 0.03) 0px 0px 8px 0px,
+    rgba(0, 0, 0, 0.1) 0px 20px 30px 0px;
+
+  &:hover {
+    transform: perspective(800px) rotateY(-4deg);
+  }
+    
+  }
+  
+
+.card .room-title{
+  font-weight: bold;
+
+}
+  .room-title {
+    font-size: 24px;
+  }
+
+  .room-title {
+    color: white;
+  }
+
+  a {
+    text-decoration: none;
+
+  }
+
+  .card i {
+    filter: invert(100);
+  }
+  .fa-portal-enter i {
+    filter: invert(100);
+}
+ 
+    </style>
+{% endblock %}

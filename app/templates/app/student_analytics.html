@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h1>Student Analytics</h1>
+
+        <!-- Quiz Statistics -->
+        <div class="card">
+            <h2>Quiz Statistics</h2>
+            <p>Average Marks: {{ quiz_stats.avg_marks }}</p>
+            <p>Maximum Marks: {{ quiz_stats.max_marks }}</p>
+            <p>Minimum Marks: {{ quiz_stats.min_marks }}</p>
+
+            <!-- Div to hold the quiz chart -->
+            <div id="quiz_chart" style="width: 100%; height: 300px;"></div>
+        </div>
+
+        <!-- Assignment Statistics -->
+        <div class="card">
+            <h2>Assignment Statistics</h2>
+            <p>Average Marks: {{ assignment_stats.avg_marks }}</p>
+            <p>Maximum Marks: {{ assignment_stats.max_marks }}</p>
+            <p>Minimum Marks: {{ assignment_stats.min_marks }}</p>
+
+            <!-- Div to hold the assignment chart -->
+            <div id="assignment_chart" style="width: 100%; height: 300px;"></div>
+        </div>
+
+        <!-- Exam Statistics -->
+        <div class="card">
+            <h2>Exam Statistics</h2>
+            <p>Average Marks: {{ exam_stats.avg_marks }}</p>
+            <p>Maximum Marks: {{ exam_stats.max_marks }}</p>
+            <p>Minimum Marks: {{ exam_stats.min_marks }}</p>
+
+            <!-- Div to hold the exam chart -->
+            <div id="exam_chart" style="width: 100%; height: 300px;"></div>
+        </div>
+    </div>
+
+    <!-- Google Charts script -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawCharts);
+
+        function drawCharts() {
+            // Draw Quiz Chart
+            var quizData = google.visualization.arrayToDataTable([
+                ['Task', 'Marks'],
+                ['Average Marks', {{ quiz_stats.avg_marks }}],
+                ['Maximum Marks', {{ quiz_stats.max_marks }}],
+                ['Minimum Marks', {{ quiz_stats.min_marks }}]
+            ]);
+            var quizOptions = {
+                title: 'Quiz Statistics',
+                legend: { position: 'top' },
+                colors: ['#3366cc', '#dc3912', '#ff9900']
+            };
+            var quizChart = new google.visualization.BarChart(document.getElementById('quiz_chart'));
+            quizChart.draw(quizData, quizOptions);
+
+            // Draw Assignment Chart
+            var assignmentData = google.visualization.arrayToDataTable([
+                ['Task', 'Marks'],
+                ['Average Marks', {{ assignment_stats.avg_marks }}],
+                ['Maximum Marks', {{ assignment_stats.max_marks }}],
+                ['Minimum Marks', {{ assignment_stats.min_marks }}]
+            ]);
+            var assignmentOptions = {
+                title: 'Assignment Statistics',
+                legend: { position: 'top' },
+                colors: ['#3366cc', '#dc3912', '#ff9900']
+            };
+            var assignmentChart = new google.visualization.BarChart(document.getElementById('assignment_chart'));
+            assignmentChart.draw(assignmentData, assignmentOptions);
+
+            // Draw Exam Chart
+            var examData = google.visualization.arrayToDataTable([
+                ['Task', 'Marks'],
+                ['Average Marks', {{ exam_stats.avg_marks }}],
+                ['Maximum Marks', {{ exam_stats.max_marks }}],
+                ['Minimum Marks', {{ exam_stats.min_marks }}]
+            ]);
+            var examOptions = {
+                title: 'Exam Statistics',
+                legend: { position: 'top' },
+                colors: ['#3366cc', '#dc3912', '#ff9900']
+            };
+            var examChart = new google.visualization.BarChart(document.getElementById('exam_chart'));
+            examChart.draw(examData, examOptions);
+        }
+    </script>
+{% endblock %}

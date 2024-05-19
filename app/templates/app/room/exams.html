@@ -1,0 +1,124 @@
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'app/timepicker/jquery.timepicker.min.css' %}">
+<script src="{% static 'app/timepicker/jquery.timepicker.min.js' %}"></script>
+<div class="exams-container">
+
+<h1>Exams</h1><br>
+
+{% if user.is_teacher %}
+<!-- Display exams for teacher -->
+<form method="post" action="{% url 'app:room_exams' room_id=room.id %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Conduct Exam</button>
+</form>
+<br>
+    <h1>Your Conducted Exams</h1>
+    <br>
+{% if exams %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Exam Title</th>
+            <th>Exam started at:</th>
+            <th>Total Marks</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for exam in exams %}
+            <tr>
+                <td>{{ exam.title }}</td>
+                <td>{{ exam.created_at }}</td>
+                <td>{{ exam.total_marks }}</td>
+                {% if user.is_teacher %}
+                    <td>
+                        <a href="/{{exam.file.document}}" target="_blank">See Exam</a>
+                        <a class="load-exam-submissions" data-exam-id="{{ exam.id }}" href="#">See Submissions</a>
+                </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No Exam available.</p>
+{% endif %}
+{% else %}
+    <!-- Display quizzes for student -->
+    {% if exams %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Exam Title</th>
+                    <th>End Time</th>
+                    <th>Created at:</th>
+                    <th>Action</th>
+                    <th>Download</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for exam in exams %}
+                    <tr>
+                        <td>{{ exam.title }}</td>
+                        <td>{{ exam.end_time }}</td>
+                        <td>{{ exam.created_at }}</td>
+                        <td>
+                            <form method="post" action="{% url 'app:room_exams' room_id=room.id %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="exam_id" value="{{ exam.id }}">
+                                <input type="hidden" name="document" value="{{ exam.file.document }}">
+
+                                {% if exam.id not in submitted_exam_ids %}
+                                    {{ form.as_p }}
+                                    <button type="submit">Submit</button>
+                                {% else %}
+                                    <p>Exam submitted</p>
+                                {% endif %}
+                                <div class="upload-instruction">
+                                    <i class="fas fa-info-circle"></i>
+                                    <p>Upload only submissions only in .pdf extension.</p>
+                                  </div>
+                            </form>
+                        </td>
+                        <td><a href="/{{exam.file.document}}" target="_blank">See Exam</a></td>
+
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No Exams available.</p>
+    {% endif %}
+{% endif %}
+</div>
+<div id="submission-container"></div>
+
+
+<script>
+     $(document).ready(function() {
+        $('#id_end_time').timepicker({});
+    
+        $('.load-exam-submissions').click(function(e) {
+            e.preventDefault();
+            var examId = $(this).data('exam-id');
+            $.ajax({
+                url: "{% url 'app:submitted_exams' exam_id=0 %}".replace('0', examId),
+                type: "GET",
+                success: function(response) {
+                    $('#submission-container').html(response);
+                },
+                error: function(xhr, errmsg, err) {
+                    console.log(errmsg);
+                }
+            });
+        });
+    });
+
+    $(document).ready(function(){
+$('#id_end_time').timepicker({});
+    });
+</script>
+

@@ -1,0 +1,126 @@
+<!-- quizzes.html -->
+{% load static %}
+<link rel="stylesheet" href="{% static 'app/timepicker/jquery.timepicker.min.css' %}">
+<script src="{% static 'app/timepicker/jquery.timepicker.min.js' %}"></script>
+<div class="quizzes-container">
+    <h1>Quizzes</h1><br>
+
+    {% if user.is_teacher %}
+        <!-- Display quizzes for teacher -->
+        <form method="post" action="{% url 'app:room_quizzes' room_id=room.id %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Conduct Quiz</button>
+        </form>
+    {% if quizzes %}
+    <br>
+    <h1>Your Conducted Quizzes</h1>
+    <br>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Quiz Title</th>
+                <th>Quiz started at:</th>
+                <th>Total Marks</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for quiz in quizzes %}
+                <tr>
+                    <td>{{ quiz.title }}</td>
+                    <td>{{ quiz.created_at }}</td>
+                    <td>{{ quiz.total_marks }}</td>
+                    {% if user.is_teacher %}
+                        <td>
+                            <a href="/{{quiz.file.document}}" target="_blank">See Quiz</a>
+                            <a class="load-quiz-submissions" data-quiz-id="{{ quiz.id }}" href="#">See Submissions</a>
+
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No quizzes available.</p>
+{% endif %}
+    {% else %}
+        <!-- Display quizzes for student -->
+        {% if quizzes %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Quiz Title</th>
+                        <th>End Time</th>
+                        <th>Created at:</th>
+                        <th>Action</th>    
+                        <th>Download</th>
+    
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quiz in quizzes %}
+                        <tr>
+                            <td>{{ quiz.title }}</td>
+                            <td>{{ quiz.end_time }}</td>
+                            <td>{{ quiz.created_at }}</td>
+                            <td>
+                                <form method="post" action="{% url 'app:room_quizzes' room_id=room.id %}" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="quiz_id" value="{{ quiz.id }}">
+                                    <input type="hidden" name="document" value="{{ quiz.file.document }}">
+                                    {% if quiz.id not in submitted_quiz_ids %}
+                                        {{ form.as_p }}
+                                        <button type="submit">Submit</button>
+                                    {% else %}
+                                        <p>Quiz submitted</p>
+                                    {% endif %}
+                                    <div class="upload-instruction">
+                                        <i class="fas fa-info-circle"></i>
+                                        <p>Upload only submissions only in .pdf extension.</p>
+                                      </div>
+                                </form>
+                                
+                            </td>
+                            <td><a href="/{{quiz.file.document}}" target="_blank">See Quiz</a></td>
+                        </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        {% else %}
+            <p>No quizzes available.</p>
+        {% endif %}
+    {% endif %}
+</div>
+<div id="submission-container"></div>
+<script>
+    $(document).ready(function() {
+        $('#id_end_time').timepicker({});
+    
+        $('.load-quiz-submissions').click(function(e) {
+            e.preventDefault();
+            var quizId = $(this).data('quiz-id');
+            $.ajax({
+                url: "{% url 'app:submitted_quizzes' quiz_id=0 %}".replace('0', quizId),
+                type: "GET",
+                success: function(response) {
+                    $('#submission-container').html(response);
+                },
+                error: function(xhr, errmsg, err) {
+                    console.log(errmsg);
+                }
+            });
+        });
+    });
+
+    $(document).ready(function () {
+        $('.quizzes-container').css('opacity', '0').animate({ opacity: '1' }, 300);
+
+    });
+    </script>
+    
+
+

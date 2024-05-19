@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'app/style.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+<div class="row">
+  <div class="card1">
+      <h4>Dashboard</h4>
+  </div>
+  
+</div>
+<div class="dashboard-container">
+  {% if user.is_teacher %}
+  <a href="{% url 'app:created_rooms' %}">
+    <div class="card">
+      <div class="front">
+        <i class="fa-solid fa-door-open"></i>
+        <div class="label">Rooms</div>
+      </div>
+      <div class="back">
+        <div class="description">
+          Manage created rooms.
+        </div>
+      </div>
+    </div>
+  </a>
+  <a href="{% url 'app:book_list' %}">
+    <div class="card">
+      <div class="front">
+        <i class="fa-solid fa-robot"></i>
+        <div class="label">AI Generation</div>
+      </div>
+      <div class="back">
+        <div class="description">
+          View and manage AI-generated content.
+        </div>
+      </div>
+    </div>
+
+  </a>
+  <a href="{% url 'app:teacher_analytics' %}">
+    <div class="card">
+      <div class="front">
+        <i class="fa-solid fa-chart-line"></i>
+        <div class="label">See Analytics</div>
+      </div>
+      <div class="back">
+        <div class="description">
+          View analytics related to your teaching activities.
+        </div>
+      </div>
+
+    </div>
+  </a>
+
+  <a href="{% url 'app:created_docs' %}">
+    <div class="card">
+      <div class="front">
+        <i class="fas fa-save"></i>
+        <div class="label">Saved Generations</div>
+      </div>
+      <div class="back">
+        <div class="description">
+          Manage your AI documents.
+        </div>
+      </div>
+    </div>
+  </a>
+
+  <a href="{% url 'app:help' %}">
+    <div class="card">
+      <div class="front">
+        <i class="fa-regular fa-circle-question"></i>
+        <div class="label">Help?</div>
+      </div>
+      <div class="back">
+        <div class="description">
+          Get help and support.
+        </div>
+      </div>
+    </div>
+  </a>
+  
+
+  {% else %}
+
+  <a href="{% url 'app:joined_rooms' %}">
+    <div class="card">
+      <div class="front">
+        <i class="fa-solid fa-door-open"></i>
+        <div class="label">Rooms</div>
+      </div>
+      <div class="back">
+        <div class="description">
+          View joined rooms.
+        </div>
+      </div>
+    </div>
+
+  </a>
+  <a href="{% url 'app:student_analytics' %}">
+    <div class="card">
+      <div class="front">
+        <i class="fa-solid fa-chart-line"></i>
+        <div class="label">See Analytics</div>
+      </div>
+      <div class="back">
+        <div class="description">
+          View analytics related to your learning activities.
+        </div>
+      </div>
+    </div>
+  </a><br>
+  <a href="{% url 'app:help' %}">
+    <div class="card">
+      <div class="front">
+        <i class="fa-regular fa-circle-question"></i>
+        <div class="label">Help?</div>
+      </div>
+      <div class="back">
+        <div class="description">
+          Get help and support.
+        </div>
+      </div>
+    </div>
+  </a>
+  
+</div>
+
+{% endif %}
+
+
+<script>
+  $(document).ready(function () {
+    $('.dashboard-container').css('opacity', '0').animate({ opacity: '1' }, 300);
+  });
+</script>
+<style>
+.dashboard-container {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: center;
+    gap: 40px;
+    padding: 40px;
+    background-image: linear-gradient(to bottom right, #9ae3d8, #c8bdbd); /* Gradient background */
+    transition: filter 2s ease; /* Smooth transition effect for filter */
+}
+
+
+.dashboard-container:not(:hover) {
+    filter: invert(0%); /* Revert filter to original state */
+    cursor: auto; /* Revert cursor to default state */
+}
+
+  .card {
+    font-size: 34px;
+    padding: 22px;
+    min-width: 200px;
+    /* Minimum width of each card */
+    background-size: cover;
+    /* Stretch the background image to cover the entire card */
+    background-position: center;
+    /* Center the background image */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: .5em;
+
+    transform-style: preserve-3d; /* Preserve 3D transformations */
+
+    height: 200px;
+    /* Fixed height for cards */
+    background-image: url("{% static 'app/bg.jpg' %}");
+    background-size: cover;
+    /* Stretch the background image to cover the entire card */
+    background-position: center;
+    /* Center the background image */
+    display: flex;
+    transform:
+    perspective(800px)
+    rotateY(-8deg);
+  transition: transform 1s ease 0s;
+  border-radius: 4px;
+  box-shadow:
+    rgba(0, 0, 0, 0.024) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.05) 0px 1px 0px 0px,
+    rgba(0, 0, 0, 0.03) 0px 0px 8px 0px,
+    rgba(0, 0, 0, 0.1) 0px 20px 30px 0px;
+
+  &:hover {
+    transform: perspective(800px) rotateY(-4deg);
+  }
+    
+  }
+
+.card .label{
+  font-weight: bold;
+
+}
+  .description {
+    font-size: 24px;
+  }
+
+  .description,
+  .label {
+    color: white;
+  }
+
+  a {
+    text-decoration: none;
+
+  }
+
+  .card i {
+    filter: invert(100);
+  }
+ 
+</style>
+{% endblock %}

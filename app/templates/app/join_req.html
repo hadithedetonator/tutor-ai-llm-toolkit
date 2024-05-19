@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'app/style.css' %}">
+    <div class="dashboard-container join-requests-container">
+        <h2>Join Requests for Room: {{ room.name }}</h2>
+        {% if user.is_teacher %}
+            {% if join_requests %}
+                <ul class="join-requests-list">
+                    {% for join_request in join_requests %}
+                        <li id="join-request-{{ join_request.id }}">
+                            {{ join_request.username }} - {{ join_request.email }} - {{ join_request.date_joined }}
+                            <form method="post" action="{% url 'app:accept_join_request' room_id=room.id user_id=join_request.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="accept-btn">Accept</button>
+                            </form>
+                            <form method="post" action="{% url 'app:reject_join_request' room_id=room.id user_id=join_request.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="reject-btn">Reject</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No join requests for this room.</p>
+            {% endif %}
+        {% else %}
+            <p>You are not authorized to view join requests.</p>
+        {% endif %}
+        <a href="{% url 'app:room_detail' room_id=room.id %}" class="dashboard-btn">Go Back</a>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('.dashboard-container').css('opacity', '0').animate({ opacity: '1' }, 300);
+
+        
+        });
+    </script>
+{% endblock %}

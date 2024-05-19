@@ -1,0 +1,51 @@
+<!-- Table to display participants -->
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Username</th>
+        <th scope="col">Email</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for participant in participants %}
+      <tr>
+        <td>{{ participant.username }}</td>
+        <td>{{ participant.email }}</td>
+        <td>
+            <button class="btn btn-danger kick-btn" data-room-id="{{ room.id }}" data-user-id="{{ participant.id }}">Kick</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <script>
+    $(document).ready(function() {
+    $('.kick-btn').click(function(e) {
+        e.preventDefault(); // Prevent the default link behavior
+        
+        var roomId = $(this).data('room-id');
+        var userId = $(this).data('user-id');
+        
+        // Send an AJAX request to kick the participant
+        $.ajax({
+            url: '/kick_participant/' + roomId + '/' + userId + '/',
+            type: 'GET',
+            success: function(response) {
+                // Show a success message in a popup
+                alert('Participant kicked successfully.');
+                
+                // Refresh the page
+                location.reload();
+            },
+            error: function(xhr, errmsg, err) {
+                // Handle the error response if needed
+                console.log(errmsg);
+            }
+        });
+    });
+});
+
+  </script>
+  

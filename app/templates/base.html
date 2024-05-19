@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  {% load static %}
+  <link rel="icon" type="image/x-icon" href="{%static 'app/favicon.png'%}">
+
+  <title>{% block title %}Tutor-Ai{% endblock %}</title>
+</head>
+
+<body>
+     <!-- Background container -->
+     <div id="background-container"></div>
+
+  <div class="container">
+    {% load static %}
+    <div class="header-container">
+      <div class="header">
+        <div class="actions">
+          {% if user.is_authenticated %}
+          <nav class="navbar align-items-center border-bottom">
+            <div class="container-fluid">
+              <div class="d-flex align-items-center">
+
+                <a href="{% url 'app:home' %}" class="navbar-brand m-0 textColor fw-bold brand"><img class="header-icon" src="https://media1.giphy.com/media/20NLMBm0BkUOwNljwv/200w.gif?cid=6c09b952gpnaka9148jw0tpl1ptn7vot856kkyx40lv770gq&ep=v1_gifs_search&rid=200w.gif&ct=g"
+                    alt="">Tutor-AI</a>
+                <div id="verticalbar" class="mx-xxl-2 mx-1 d-none d-lg-inline-block"></div>
+                {% if user.is_teacher %}
+                <a href="{% url 'accounts:edit_profile' %}"
+                  class="nav-link textColor fw-lighter lh-sm brandSubHeading d-none d-lg-inline-block">Teacher
+                  <br>
+                  <span class="fw-medium brandSubHeading d-none d-lg-inline-block">Management</span>
+                </a>
+                {% else %}
+                <a href="{% url 'accounts:edit_profile' %}"
+                  class="nav-link textColor fw-lighter lh-sm brandSubHeading d-none d-lg-inline-block">Student
+                  <br>
+                  <span class="fw-medium brandSubHeading d-none d-lg-inline-block">Management</span>
+                </a>
+                {% endif %}
+                <div class="position-relative ms-4 d-none d-xl-inline-block">
+                  {% if user.is_active %}
+                  <div class="badge active">Activated</div>
+                  {% else %}
+                  <div class="badge inactive"><i class="fas fa-exclamation-circle"></i></div>
+                  {% endif %}
+
+                </div>
+                <div class="stuff">
+                  <!-- Profile picture -->
+                  {% if user.profile_picture %}
+                  <img style="border-radius: 50%;" src="http://34.125.209.178:8090/{{ user.profile_picture }}"
+                    alt="Profile Picture">
+                  {% else %}
+                  <!-- Default profile picture if user doesn't have one --> <img style="border-radius: 50%;"
+                    src="{% static 'app/default.jpg' %}" alt="">
+                  {% endif %}
+                  <span class="fw-bold">{{user.username}}</span>
+                  <a href="{% url 'accounts:logout' %}"><i class="fa fa-sign-out" aria-hidden="true"></i></a>
+                </div>
+              </div>
+            </div>
+          </nav>
+          {% endif %}
+          {% block header_actions %}{% endblock %}
+        </div>
+
+      </div>
+    </div>
+
+    <div class="content">
+
+      {% block content %}{% endblock %}
+    </div>
+    <footer class="bg-primary text-white text-center text-lg-start fixed-bottom">
+      <!-- Grid container -->
+
+      <!-- Copyright -->
+      <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+        © 2024 Copyright:
+        <a class="text-white" href="{% url 'app:home' %}">Tutor-AI</a>
+
+    </footer>
+  </div>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+</body>
+<style>
+  img {
+    height: 2rem;
+    width: 2rem;
+  }
+  #header-icon {
+            background-color: transparent; /* Set the background color of the GIF to transparent */
+        }
+.stuff{
+  display: flex;
+  margin-left: 88vh;
+  flex-direction: row;
+  gap: 6px;
+}
+  .stuff span,
+  .stuff a {
+    margin-right: 5px;
+    /* Adjust this value to set the desired gap */
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    color: rgb(0, 0, 0);
+    font-weight: bold;
+  }
+
+  .active {
+    background-color: yellow;
+  }
+
+  .inactive {
+    background-color: red;
+  }
+
+  .inactive i {
+    color: red;
+  } /* CSS for stretched background image */
+        #background-container {
+            position: fixed; /* Position the background container fixed to the viewport */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Ensure the background container stays behind other content */
+            background-image: url('https://lh6.googleusercontent.com/proxy/hX8egD4QBwDsREC51R5dFf9xFFpamWU0AI4juT1JK1Bwxh3YATnw2Nbb75euUs7O1p9QPhoOyMr100QM0RjlZS1iGClMmf4IiJWApwcMddPfpywEnq3tYVigSy6kZeL8B2qRcTjyJa8LKCWC57N-zi9YJ-I');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center center;
+            opacity: 0.1;
+            filter: blur(10px);
+        }
+</style>
+
+</html>

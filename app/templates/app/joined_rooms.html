@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'app/style.css' %}">
+<div class="dashboard-container">
+    <h4>Your Joined Rooms:</h4>
+    {% if joined_rooms %}
+    <div class="books-container">
+        {% for room in joined_rooms %}
+        <div class="card">
+            <h3 class="room-title">{{ room.name }}</h3>
+            <div class="button-group">
+                <a href="{% url 'app:room_detail' room_id=room.id %}" class="view-button">Go to Room</a>
+                <form method="POST" action="{% url 'app:delete_room' room.id %}">
+                    {% csrf_token %}
+                    <button class="delete-button" type="submit">
+                        <i class="fas fa-door-open" style="margin-right: 5px;"></i>
+                        Leave Room
+                    </button>             
+                   </form>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p class="no-books">You haven't joined any rooms yet.</p>
+        {% endif %}
+        <form method="post" action="{% url 'app:join_room' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="dashboard-btn">Join a Room</button>
+        </form>
+    </div>
+
+
+    <style>
+        .dashboard-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .card {
+            position: relative;
+            /* Make the card position relative for absolute positioning of Room.svg */
+
+            font-size: 34px;
+            padding: 22px;
+            min-width: 200px;
+            /* Minimum width of each card */
+            background-size: cover;
+            /* Stretch the background image to cover the entire card */
+            background-position: center;
+            /* Center the background image */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: .5em;
+
+            transform-style: preserve-3d;
+            /* Preserve 3D transformations */
+
+            height: 200px;
+            /* Fixed height for cards */
+            background-image: url("{% static 'app/bg.jpg' %}");
+            /* Stretch the background image to cover the entire card */
+            background-position: center;
+            /* Center the background image */
+            display: flex;
+            transform:
+                perspective(800px) rotateY(-8deg);
+            transition: transform 1s ease 0s;
+            border-radius: 4px;
+            box-shadow:
+                rgba(0, 0, 0, 0.024) 0px 0px 0px 1px,
+                rgba(0, 0, 0, 0.05) 0px 1px 0px 0px,
+                rgba(0, 0, 0, 0.03) 0px 0px 8px 0px,
+                rgba(0, 0, 0, 0.1) 0px 20px 30px 0px;
+
+            &:hover {
+                transform: perspective(800px) rotateY(-4deg);
+            }
+
+            .card::before {
+                content: "";
+                /* Create a pseudo-element for absolute positioning of Room.svg */
+                position: absolute;
+                bottom: 0;
+                /* Position at the bottom */
+                left: 0;
+                /* Position at the left */
+                background-image: url("{% static 'app/bg.jpg' %}");
+                width: 50px;
+                /* Adjust width as needed */
+                height: 50px;
+                /* Adjust height as needed */
+            }
+
+
+        }
+
+        .view-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 10px;
+            /* Make the button round */
+            background-color: #007bff;
+            /* Button background color */
+            color: white;
+            /* Button text color */
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            /* Add transition for hover effect */
+        }
+
+        .view-btn:hover {
+            background-color: #0056b3;
+            /* Change background color on hover */
+        }
+
+        .card .room-title {
+            font-weight: bold;
+
+        }
+
+        .room-title {
+            font-size: 24px;
+        }
+
+        .room-title {
+            color: rgb(255, 255, 255);
+        }
+
+        a {
+            text-decoration: none;
+
+        }
+
+        .card i {
+            filter: invert(100);
+        }
+        .delete-button {
+    background-color: #ca0d20; /* Light Red */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.delete-button:hover {
+    background-color: #e57373; /* Darker shade of red on hover */
+}
+
+    </style>
+    {% endblock %}

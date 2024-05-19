@@ -1,0 +1,118 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'app/timepicker/jquery.timepicker.min.css' %}">
+<script src="{% static 'app/timepicker/jquery.timepicker.min.js' %}"></script>
+<div class="assignments-container">
+
+<h1>Assignments</h1><br>
+
+{% if user.is_teacher %}
+<!-- Display assignments for teacher -->
+<form method="post" action="{% url 'app:room_assignments' room_id=room.id %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Conduct Assignment</button>
+</form>
+{% if assignments %}
+<br>
+    <h1>Your Conducted Assignments</h1>
+    <br>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Assignment Title</th>
+            <th>Total Marks</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for assignment in assignments %}
+            <tr>
+                <td>{{ assignment.title }}</td>
+                <td>{{ assignment.total_marks }}</td>
+                {% if user.is_teacher %}
+                    <td>
+                        <a href="/{{assignment.file.document}}" target="_blank">See assignment</a>
+                        <a class="load-assignment-submissions" data-assignment-id="{{ assignment.id }}" href="#">See Submissions</a>
+
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No assignments available.</p>
+{% endif %}
+{% else %}
+    <!-- Display assignments for student -->
+    {% if assignments %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Assignment Title</th>
+                    <th>End Time</th>
+                    <th>Created at:</th>
+                    <th>Action</th>
+                    <th>Download</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for assignment in assignments %}
+                    <tr>
+                        <td>{{ assignment.title }}</td>
+                        <td>{{ assignment.end_time }}</td>
+                        <td>{{ assignment.created_at }}</td>
+                        <td>
+                            <form method="post" action="{% url 'app:room_assignments' room_id=room.id %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="assignment_id" value="{{ assignment.id }}">
+                                <input type="hidden" name="document" value="{{ assignment.file.document }}">
+
+                                {% if assignment.id not in submitted_assignment_ids %}
+                                    {{ form.as_p }}
+                                    <button type="submit">Submit</button>
+                                {% else %}
+                                    <p>Assignment submitted</p>
+                                {% endif %}
+                                <div class="upload-instruction">
+                                    <i class="fas fa-info-circle"></i>
+                                    <p>Upload only submissions only in .pdf extension.</p>
+                                  </div>
+                            </form>
+                        </td>
+                        <td><a href="/{{assignment.file.document}}" target="_blank">See Assignment</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No assignments available.</p>
+    {% endif %}
+{% endif %}
+</div>
+<div id="submission-container"></div>
+
+<script>
+     $(document).ready(function() {
+        $('#id_end_time').timepicker({});
+    
+        $('.load-assignment-submissions').click(function(e) {
+            e.preventDefault();
+            var assignmentID = $(this).data('assignment-id');
+            $.ajax({
+                url: "{% url 'app:submitted_assignments' assignment_id=0 %}".replace('0', assignmentID),
+                type: "GET",
+                success: function(response) {
+                    $('#submission-container').html(response);
+                },
+                error: function(xhr, errmsg, err) {
+                    console.log(errmsg);
+                }
+            });
+        });
+    
+        $('.assignments-container').css('opacity', '0').animate({ opacity: '1' }, 300);
+    });
+
+</script>

@@ -1,0 +1,143 @@
+<!-- app/room/quiz_submissions.html -->
+<div id="result-container"></div>
+
+<div class="quizzes-container">
+    <h2>Submissions for <b>{{ quiz.title }}</b></h2>
+    {% if submissions %}
+    <form method="post" action="{% url 'app:update_quiz_submission_marks' quiz_id=quiz.id %}">
+    {% csrf_token %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Marks</th>
+                <th>Submitted At</th>
+                <th>Action</th>
+                <th>AI Marks</th>
+                <th>Submission</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for submission in submissions %}
+            <tr>
+                <td>
+                    {% load static %}
+                    {% if submission.student.profile_picture %}
+                    <img style="border-radius: 50%;" src="http://34.125.209.178:8090/{{ submission.student.profile_picture }}" alt="Profile Picture">
+                    {% else %}
+                    <!-- Default profile picture if user doesn't have one --> 
+                    <img style="border-radius: 50%;" src="{% static 'app/default.jpg' %}" alt="">
+                    {% endif %}
+                    {{ submission.student }}
+                </td>
+                <td>
+                    <input type="number" required name="marks_{{ submission.id }}" value="{{ submission.marks }}">
+                </td>
+                <td>{{ submission.submitted_at }}</td>
+                <td><button class="btn-info" data-report="{{ submission.ai_report }}">AI Grader Report</button></td>
+                <td>{{submission.ai_marks}}</td>
+                <td><a href="{{ submission.submission.url }}" target="_blank">Download</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button type="submit">Update Marks</button>
+</form>
+    {% else %}
+    <p>No uploads yet by the students.</p>
+    {% endif %}
+</div>
+
+<!-- Modal Structure -->
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <div id="modal-report" class="modal-text"></div>
+    </div>
+</div>
+
+<script>
+     // Function to get CSRF token from cookies
+     function getCSRFToken() {
+            var csrfToken = null;
+            var cookieList = document.cookie.split(';');
+            for (var i = 0; i < cookieList.length; i++) {
+                var cookieParts = cookieList[i].trim().split('=');
+                if (cookieParts[0] === 'csrftoken') {
+                    csrfToken = decodeURIComponent(cookieParts[1]);
+                    break;
+                }
+            }
+            return csrfToken;
+        }
+       
+        
+        $('.btn-info').on('click', function () {
+        event.preventDefault(); // Prevent the default form submission behavior
+
+        var aiReport = $(this).data('report');
+        // Replace text wrapped inside ** with <strong> tags
+        aiReport = aiReport.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        $('#modal-report').html('<p>' + aiReport + '</p>');
+        $('#myModal').css('display', 'block');
+    });
+
+    // Close the modal when the close button or outside the modal is clicked
+    $('.close').on('click', function () {
+        $('#myModal').css('display', 'none');
+    });
+
+    $(window).on('click', function (event) {
+        if (event.target == $('#myModal')[0]) {
+            $('#myModal').css('display', 'none');
+        }
+    });
+</script>
+
+<style>
+    /* CSS for the modal */
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+    }
+
+    /* Modal Content/Box */
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto; /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; /* Could be more or less, depending on screen size */
+    }
+
+    /* Close Button */
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    /* Style for the modal text */
+    .modal-text {
+        /* Add styles similar to the rest of the page */
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.6;
+        color: #333;
+    }
+</style>

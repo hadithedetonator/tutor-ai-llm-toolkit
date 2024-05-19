@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'app/style.css' %}">
+<div class="dashboard-container">
+    {% if user.is_teacher %}
+        <!-- Teacher's Usage -->
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">Method of Usage for Teachers</div>
+
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="mb-3">Module 1: Content Generation</h5>
+                                <p>After successful login, you can do the following:</p>
+                                <ol>
+                                    <li>Utilize Tutor-AI's generation model for your books, notes, or slides.</li>
+                                    <li>After satisfaction with the response, save the generated content in PDF format.</li>
+                                </ol>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="mb-3">Module 2: Virtual Classroom</h5>
+                                <p>After successful login, you can do the following:</p>
+                                <ol start="3">
+                                    <li>Create a room with your desired room name. (Room key is generated after room creation)</li>
+                                    <li>Tell all your students to join with their names and the generated room key.</li>
+                                    <li>Accept or reject requests from students to join the room.</li>
+                                    <li>Conduct various activities such as quizzes, assignments, and exams once everyone is in the room.</li>
+                                    <li>Upload the generated file or your own file for conducting sessions.</li>
+                                </ol>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="mb-3">Module 3: Analytics</h5>
+                                <p>After successful login, you can see each room's analytics including:</p>
+                                <ul>
+                                    <li>Progress of each student in the room.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <!-- Student's Usage -->
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">Method of Usage for Students</div>
+
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="mb-3">Module 1: Joining Rooms</h5>
+                                <p>As a student, you can do the following:</p>
+                                <ol>
+                                    <li>Use the room key and your name to send a request to join rooms.</li>
+                                </ol>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="mb-3">Module 2: Submissions and Marks</h5>
+                                <p>After the teacher has uploaded a file, you can do the following:</p>
+                                <ol start="2">
+                                    <li>Upload your submission for the given assignment.</li>
+                                    <li>Once the teacher has marked your submission, you can see your marks.</li>
+                                </ol>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="mb-3">Module 3: Analytics</h5>
+                                <p>As a student, you can see your own analytics including:</p>
+                                <ul>
+                                    <li>Your progress and performance in various activities.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    $(document).ready(function() {
+      $('.card').css('opacity', '0').animate({ opacity: '1' }, 300);
+    });
+</script>
+
+<style>
+.card {
+  margin-top: 20px;
+  opacity: 0;
+}
+
+.card-header {
+  color: #fff;
+}
+
+.card-body ol, .card-body ul {
+  padding-left: 20px;
+}
+
+.card-body ol li, .card-body ul li {
+  margin-bottom: 10px;
+}
+</style>
+{% endblock %}

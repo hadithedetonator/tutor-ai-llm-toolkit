@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-container">
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'app/style.css' %}">
+    <h2>Your Uploaded Books</h2>
+    <div class="books-container">
+        {% if uploaded_books.all %}
+        {% for book in uploaded_books.all %}
+            <div class="card">
+                <h3 class="book-title">{{ book.title }}</h3>
+                <p class="upload-date">Uploaded on: {{ book.uploaded_at }}</p>
+                <div class="button-group">
+                    <form method="GET" action="{% url 'app:book_detail' book.id %}">
+                        <button class="view-button" type="submit">View Book</button>
+                    </form>
+                    <form method="POST" action="{% url 'app:delete_book' book.id %}">
+                        {% csrf_token %}
+                        <button class="delete-button" type="submit">Delete Book</button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+        {% else %}
+        <p class="no-books">You have no uploaded books.</p>
+        {% endif %}
+    </div>
+    <div style="padding: 20px;">
+    <a class="btn btn-primary" href="{% url 'app:upload_book' %}">Upload a Book</a>
+</div>
+</div>
+
+<script>
+    $(document).ready(function() {
+      $('.dashboard-container').css('opacity', '0').animate({ opacity: '1' }, 300);
+    });
+</script>
+
+<style>
+
+  .dashboard-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .card {
+    font-size: 34px;
+    padding: 22px;
+    min-width: 200px;
+    /* Minimum width of each card */
+    background-size: cover;
+    /* Stretch the background image to cover the entire card */
+    background-position: center;
+    /* Center the background image */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: .5em;
+
+    transform-style: preserve-3d; /* Preserve 3D transformations */
+
+    height: 200px;
+    /* Fixed height for cards */
+    background-image: url("{% static 'app/book.jpg' %}");
+    background-size: cover;
+    /* Stretch the background image to cover the entire card */
+    background-position: center;
+    /* Center the background image */
+    display: flex;
+    transform:
+    perspective(800px)
+    rotateY(-8deg);
+  transition: transform 1s ease 0s;
+  border-radius: 4px;
+  box-shadow:
+    rgba(0, 0, 0, 0.024) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.05) 0px 1px 0px 0px,
+    rgba(0, 0, 0, 0.03) 0px 0px 8px 0px,
+    rgba(0, 0, 0, 0.1) 0px 20px 30px 0px;
+
+  &:hover {
+    transform: perspective(800px) rotateY(-4deg);
+  }
+    
+  }
+
+.card .book-title{
+  font-weight: bold;
+
+}
+  .upload-date {
+    font-size: 24px;
+  }
+
+  .book-title,
+  .upload-date {
+    color: rgb(0, 0, 0);
+  }
+
+  a {
+    text-decoration: none;
+
+  }
+
+  .card i {
+    filter: invert(100);
+  }
+ 
+</style>
+{% endblock %}

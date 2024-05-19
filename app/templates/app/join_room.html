@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'app/style.css' %}">
+    
+    <div class="join-room-container">
+        {% if not user.is_teacher %}
+            <h2>Join a Room</h2>
+            
+            <form id="join-room-form" method="post" action="{% url 'app:join_room' %}">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="{{ form.room_name.id_for_label }}">Room Name:</label>
+                    {{ form.room_name }}
+                    <i>{{ form.room_name.errors }}</i>
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.pass_key.id_for_label }}">Pass Key:</label>
+                    {{ form.pass_key }}
+                    <i>{{ form.pass_key.errors }}</i>
+                </div>
+                
+                <button style="margin-left: 45%;" class="join-room-btn">Send Request</button>
+            </form>
+
+            <div id="join-room-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <p id="modal-message"></p>
+                </div>
+            </div>
+            
+        {% else %}
+            <p class="teacher-message">Teachers cannot join a room.</p>
+        {% endif %}
+        
+        <a href="{% url 'app:home' %}" class="dashboard-btn">Go Home</a>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('.join-room-container').css('opacity', '0').animate({ opacity: '1' }, 300);
+        });
+
+        // Modal script
+        var modal = document.getElementById("join-room-modal");
+        var span = document.getElementsByClassName("close")[0];
+
+        $('#join-room-form').submit(function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            $.ajax({
+                type: "POST",
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
+                success: function(response) {
+                    // Update modal content with JSON response
+                    $('#modal-message').text(response.message);
+                    modal.style.display = "block"; // Show modal
+                },
+                error: function(xhr, errmsg, err) {
+                    console.log(errmsg);
+                }
+            });
+        });
+
+        // Close modal when the user clicks on <span> (x)
+        span.onclick = function() {
+            modal.style.display = "none";
+        };
+
+        // Close modal when the user clicks anywhere outside of the modal
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        };
+    </script>
+{% endblock %}
