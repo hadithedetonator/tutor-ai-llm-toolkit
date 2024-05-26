@@ -65,8 +65,11 @@ cd tutor-ai-llm-toolkit
    ```
    
 ## Migrate the Database
+```
+python manage.py migrate app
+python manage.py migrate accounts
 python manage.py migrate
-
+```
 
 ## Run the Development Server
 ```sh
