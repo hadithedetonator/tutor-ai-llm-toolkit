@@ -82,7 +82,7 @@ Open your browser and navigate to http://localhost:8000.
 ## Usage
 
 - **Register/Login:** Teachers can register or log in to their accounts.
-- **Create Quizzes:** Use the prompt templating system to create and manage quizzes.
+- **Create Quizzes, Assignments, Exams:** Use the prompt templating system to create and manage quizzes, exams, and even a Mid Term /Final Exam.
 - **Student Submissions:** Students can submit their handwritten answers.
 - **Automatic Grading:** Google Vision OCR processes and grades the submissions.
 - **Review and Remark:** Teachers can review graded submissions AI report and provide final marks.
