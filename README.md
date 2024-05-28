@@ -97,7 +97,7 @@ Contributions are welcome! Follow these steps to contribute:
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-For any questions or discussions, you can contact Haris Ali Baig at [harisalibaig11@gmail.com](mailto:harisalibaig11@gmail.com).
+For any questions or discussions, you can contact me at [harisalibaig11@gmail.com](mailto:harisalibaig11@gmail.com).
 
 ## License
 
